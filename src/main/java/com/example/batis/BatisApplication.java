@@ -7,7 +7,6 @@ import org.springframework.cache.annotation.EnableCaching;
 
 @SpringBootApplication
 @EnableCaching
-
 @MapperScan(basePackages = "com.example.batis.repository")
 public class BatisApplication {
 

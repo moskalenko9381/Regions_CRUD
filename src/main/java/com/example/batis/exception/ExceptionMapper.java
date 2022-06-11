@@ -22,7 +22,6 @@ public class ExceptionMapper {
         MAPPER.put(RegionAlreadyExistsException.class, ResponseEntity.status(HttpStatus.CONFLICT).build());
     }
 
-
     public static ResponseEntity<?> map(Exception exception) {
         if (!MAPPER.containsKey(exception.getClass())) {
             return ResponseEntity.internalServerError().build();
