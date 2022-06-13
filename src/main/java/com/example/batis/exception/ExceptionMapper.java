@@ -12,12 +12,12 @@ import java.util.Map;
 
 public class ExceptionMapper {
 
-    private static final Map<Class<?>, ResponseEntity<?>> MAPPER;
+    private static final Map<Class<? extends Throwable>, ResponseEntity<?>> MAPPER;
 
     static {
         MAPPER = new HashMap<>();
         MAPPER.put(NoSuchElementException.class, ResponseEntity.badRequest().build());
-        MAPPER.put(EmptyListOfRegionsException.class, ResponseEntity.noContent().build());
+        MAPPER.put(EmptyListOfRegionsException.class, ResponseEntity.badRequest().build());
         MAPPER.put(RegionDeletionException.class, ResponseEntity.badRequest().build());
         MAPPER.put(RegionAlreadyExistsException.class, ResponseEntity.status(HttpStatus.CONFLICT).build());
     }

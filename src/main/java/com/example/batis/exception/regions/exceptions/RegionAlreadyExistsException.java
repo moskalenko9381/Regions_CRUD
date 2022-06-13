@@ -10,6 +10,7 @@ public class RegionAlreadyExistsException extends RegionException {
     private static final long serialVersionUID = 1252649479207495830L;
 
     public RegionAlreadyExistsException(Object... params) {
-        super("Element with parameters " + Arrays.toString(params) + " already exists", ErrorReason.NAME_ALREADY_EXISTS.name());
+        super("Element with parameters %s already exists", ErrorReason.NAME_ALREADY_EXISTS.name(),
+                Arrays.toString(params));
     }
 }

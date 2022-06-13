@@ -11,6 +11,6 @@ public class NoSuchElementException extends RegionException {
     private static final long serialVersionUID = 2837811265913164509L;
 
     public NoSuchElementException(Object... params) {
-        super("Element with parameters " + Arrays.toString(params) + " not found", ErrorReason.NO_SUCH_ELEMENT.name());
+        super("Element with parameters %s not found", ErrorReason.NO_SUCH_ELEMENT.name(), Arrays.toString(params));
     }
 }

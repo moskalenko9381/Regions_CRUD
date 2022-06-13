@@ -4,8 +4,7 @@ import com.example.batis.exception.regions.exceptions.EmptyListOfRegionsExceptio
 import com.example.batis.exception.regions.exceptions.NoSuchElementException;
 import com.example.batis.exception.regions.exceptions.RegionAlreadyExistsException;
 import com.example.batis.exception.regions.exceptions.RegionDeletionException;
-import com.example.batis.model.Region;
-import com.example.batis.model.RegionDTO;
+import com.example.batis.model.*;
 import com.example.batis.repository.RegionMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,52 +19,65 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class RegionService {
-    @Autowired
-    private RegionMapper regionMapper;
+    private final RegionMapper regionMapper;
 
-    public List<RegionDTO> findAll() {
-        List<RegionDTO> regions = regionMapper.findAll();
-        if (regions.isEmpty())
+    @Autowired
+    public RegionService(RegionMapper regionMapper) {
+        this.regionMapper = regionMapper;
+    }
+
+    public Regions findAll() {
+        log.info("Find all regions: findAll");
+        List<Region> regionsList = regionMapper.findAll();
+        Regions regions = RegionDTOMapper.asRegions(regionsList);
+        if (regions.isEmpty()) {
             throw new EmptyListOfRegionsException();
+        }
         return regions;
     }
 
     @Cacheable("regions")
     public RegionDTO findById(long id) {
         log.info("Getting region by id: {}", id);
-        Optional<RegionDTO> region = regionMapper.findById(id);
-        return region.orElseThrow(() -> new NoSuchElementException(id));
+        Optional<Region> optRegion = regionMapper.findById(id);
+        Region region = optRegion.orElseThrow(() -> new NoSuchElementException(id));
+        return RegionDTOMapper.asRegionDto(region);
     }
 
     @Cacheable("regions")
-    public RegionDTO findByNameAndShortname(Region region) {
-        Optional<RegionDTO> regionDto = regionMapper.findByNameAndShortname(region);
-        return regionDto.orElseThrow(() -> new NoSuchElementException(region.getName(), region.getShortName()));
+    public RegionDTO findByNameAndShortname(String name, String shortName) {
+        log.info("Getting region by name: {} and shortname: {}", name, shortName);
+        Optional<Region> optRegion = regionMapper.findByNameAndShortname(name, shortName);
+        Region region = optRegion.orElseThrow(() -> new NoSuchElementException(name, shortName));
+        return RegionDTOMapper.asRegionDto(region);
     }
 
-    @CacheEvict("users")
-    public String deleteById(long id) {
-        if (!regionMapper.deleteById(id)) throw new RegionDeletionException();
-        return "Region with id " + id + " was successfully deleted.";
-    }
-
-
-    public RegionDTO addRegion(Region region) {
-        try {
-            regionMapper.addRegion(region);
-        } catch (DuplicateKeyException e) {
-            throw new RegionAlreadyExistsException(region.getName(), region.getShortName());
+    @CacheEvict("regions")
+    public void deleteById(long id) {
+        log.info("Deleting region by id: {}", id);
+        if (!regionMapper.deleteById(id)) {
+            throw new RegionDeletionException();
         }
-        return regionMapper.getLastRegion();
     }
 
-    public RegionDTO updateRegion(RegionDTO region) {
+
+    public void addRegion(NewRegionDTO newRegionDTO) {
+        log.info("Add new region: addRegion");
         try {
-            if (!regionMapper.updateRegion(region))
+            regionMapper.addRegion(newRegionDTO.getName(), newRegionDTO.getShortName());
+        } catch (DuplicateKeyException e) {
+            throw new RegionAlreadyExistsException(newRegionDTO.getName(), newRegionDTO.getShortName());
+        }
+    }
+
+    public void updateRegion(RegionDTO region) {
+        log.info("Update region by id: {}", region.getId());
+        try {
+            if (!regionMapper.updateRegion(RegionDTOMapper.asRegion(region))) {
                 throw new NoSuchElementException(region.getId());
+            }
         } catch (DuplicateKeyException e) {
             throw new RegionAlreadyExistsException(region.getName(), region.getShortName());
         }
-        return findById(region.getId());
     }
 }

@@ -8,7 +8,7 @@ public class RegionException extends RuntimeException {
     private final String reason;
 
     public RegionException(String message, String reason, Object... params) {
-        super(message);
+        super(message.formatted(params));
         this.reason = reason;
     }
 
