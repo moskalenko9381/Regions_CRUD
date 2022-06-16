@@ -9,6 +9,7 @@ import com.example.batis.repository.RegionMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -70,6 +71,7 @@ public class RegionService {
         }
     }
 
+    @CachePut("regions")
     public void updateRegion(RegionDTO region) {
         log.info("Update region by id: {}", region.getId());
         try {
